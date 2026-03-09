@@ -97,10 +97,10 @@ function M.get(p)
   h('Boolean',       { fg = p.yellow })
 
   h('Identifier',    { fg = p.fg })
-  h('Function',      { fg = p.cyan })
+  h('Function',      { fg = p.blue })
 
   h('Statement',     { fg = p.blue })
-  h('Conditional',   { fg = p.blue })
+  h('Conditional',   { fg = p.magenta })
   h('Repeat',        { fg = p.blue })
   h('Label',         { fg = p.blue })
   h('Operator',      { fg = p.fg })
@@ -178,11 +178,11 @@ function M.get(p)
   h('@punctuation.special',  { fg = p.magenta })
 
   h('@function',             { link = 'Function' })
-  h('@function.call',        { fg = p.cyan })
+  h('@function.call',        { fg = p.blue })
   h('@function.builtin',     { fg = p.br_cyan, bold = true })
   h('@function.macro',       { fg = p.magenta })
-  h('@function.method',      { fg = p.cyan })
-  h('@function.method.call', { fg = p.cyan })
+  h('@function.method',      { fg = p.blue })
+  h('@function.method.call', { fg = p.blue })
 
   h('@constructor',          { fg = p.yellow })
 
@@ -198,7 +198,7 @@ function M.get(p)
   h('@variable.parameter',        { fg = p.fg, italic = true }) -- function params
   h('@variable.parameter.builtin',{ fg = p.red, italic = true }) -- implicit self
 
-  h('@property',             { fg = p.fg })                 -- dot-access fields
+  h('@property',             { fg = p.cyan })                 -- dot-access fields
 
   h('@namespace',            { fg = p.yellow })
   h('@module',               { fg = p.yellow })
