@@ -1,9 +1,13 @@
--- isocon/color.lua — Pure color math, no side effects
--- Pipeline: hex ↔ sRGB ↔ linear sRGB ↔ Oklab ↔ OKLCH
+--- isocon/color.lua
+--- Pure color math with no side effects.
+--- Pipeline: hex <-> sRGB <-> linear sRGB <-> Oklab <-> OKLCH
 
 local M = {}
 
--- sRGB gamma linearization
+--- Apply sRGB gamma linearization to a single channel.
+--- Converts a gamma-compressed value in [0,1] to linear light.
+---@param c number Gamma-compressed channel value in [0, 1]
+---@return number Linear channel value in [0, 1]
 function M.linearize(c)
   if c <= 0.04045 then
     return c / 12.92
@@ -12,6 +16,10 @@ function M.linearize(c)
   end
 end
 
+--- Apply sRGB gamma compression to a single linear channel.
+--- Converts a linear light value in [0,1] to gamma-compressed.
+---@param c number Linear channel value in [0, 1]
+---@return number Gamma-compressed channel value in [0, 1]
 function M.delinearize(c)
   if c <= 0.0031308 then
     return 12.92 * c
@@ -20,6 +28,9 @@ function M.delinearize(c)
   end
 end
 
+--- Parse a hex color string into gamma-compressed sRGB components.
+---@param hex string Hex color string, e.g. "#1a1a2e" (leading # optional)
+---@return { r: number, g: number, b: number } RGB table with values in [0, 1]
 function M.hex_to_rgb(hex)
   hex = hex:gsub('#', '')
   local r = tonumber(hex:sub(1, 2), 16) / 255
@@ -28,6 +39,12 @@ function M.hex_to_rgb(hex)
   return { r = r, g = g, b = b }
 end
 
+--- Encode gamma-compressed sRGB components as a lowercase hex string.
+--- Values are clamped to [0, 1] before encoding.
+---@param r number Red channel in [0, 1]
+---@param g number Green channel in [0, 1]
+---@param b number Blue channel in [0, 1]
+---@return string Hex color string, e.g. "#1a1a2e"
 function M.rgb_to_hex(r, g, b)
   r = math.max(0, math.min(1, r))
   g = math.max(0, math.min(1, g))
@@ -38,7 +55,12 @@ function M.rgb_to_hex(r, g, b)
     math.floor(b * 255 + 0.5))
 end
 
--- WCAG relative luminance from linear sRGB
+--- Compute WCAG relative luminance from gamma-compressed sRGB.
+--- Each channel is first linearized, then combined via the WCAG coefficients.
+---@param r number Red channel in [0, 1]
+---@param g number Green channel in [0, 1]
+---@param b number Blue channel in [0, 1]
+---@return number Relative luminance Y in [0, 1]
 function M.wcag_luminance(r, g, b)
   local lr = M.linearize(r)
   local lg = M.linearize(g)
@@ -46,25 +68,41 @@ function M.wcag_luminance(r, g, b)
   return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb
 end
 
--- Oklab conversion (Björn Ottosson's reference matrices)
+--- Convert linear sRGB to Oklab using Björn Ottosson's reference matrices.
+--- M1 maps linear sRGB to the LMS cone space; cube root compresses it;
+--- M2 maps the compressed LMS to the Oklab (L, a, b) coordinates.
+---@param r number Linear red in [0, 1]
+---@param g number Linear green in [0, 1]
+---@param b number Linear blue in [0, 1]
+---@return number L Oklab lightness
+---@return number a Oklab green-red axis
+---@return number b_ Oklab blue-yellow axis
 local function linear_rgb_to_oklab(r, g, b)
   -- M1: linear sRGB → LMS cone space
   local l = 0.4122214708 * r + 0.5363325363 * g + 0.0514459929 * b
   local m = 0.2119034982 * r + 0.6806995451 * g + 0.1073969566 * b
   local s = 0.0883024619 * r + 0.2817188376 * g + 0.6299787005 * b
 
-  -- Cube root
+  -- Cube root non-linearity
   local l_ = l ^ (1/3)
   local m_ = m ^ (1/3)
   local s_ = s ^ (1/3)
 
-  -- M2: LMS → Oklab
+  -- M2: compressed LMS → Oklab
   return
     0.2104542553 * l_ + 0.7936177850 * m_ - 0.0040720468 * s_,
     1.9779984951 * l_ - 2.4285922050 * m_ + 0.4505937099 * s_,
     0.0259040371 * l_ + 0.7827717662 * m_ - 0.8086757660 * s_
 end
 
+--- Convert Oklab to linear sRGB using Björn Ottosson's reference matrices.
+--- Inverse of linear_rgb_to_oklab.
+---@param L number Oklab lightness
+---@param a number Oklab green-red axis
+---@param b_ number Oklab blue-yellow axis
+---@return number r Linear red (may be out of [0,1] if outside gamut)
+---@return number g Linear green (may be out of [0,1] if outside gamut)
+---@return number b Linear blue (may be out of [0,1] if outside gamut)
 local function oklab_to_linear_rgb(L, a, b_)
   local l_ = L + 0.3963377774 * a + 0.2158037573 * b_
   local m_ = L - 0.1055613458 * a - 0.0638541728 * b_
@@ -80,6 +118,13 @@ local function oklab_to_linear_rgb(L, a, b_)
     -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s
 end
 
+--- Convert OKLCH polar coordinates to gamma-compressed sRGB.
+--- H is converted to Oklab (a, b) via cos/sin, then passed through
+--- oklab_to_linear_rgb and delinearized. Output is clamped to [0, 1].
+---@param L number Oklab lightness in [0, 1]
+---@param C number Chroma (radius in the a-b plane), typically [0, 0.4]
+---@param H number Hue angle in degrees [0, 360)
+---@return { r: number, g: number, b: number } Clamped sRGB table in [0, 1]
 function M.oklch_to_rgb(L, C, H)
   local h_rad = H * math.pi / 180
   local a = C * math.cos(h_rad)
@@ -92,6 +137,11 @@ function M.oklch_to_rgb(L, C, H)
   }
 end
 
+--- Convert gamma-compressed sRGB to OKLCH polar coordinates.
+---@param r number Red channel in [0, 1]
+---@param g number Green channel in [0, 1]
+---@param b number Blue channel in [0, 1]
+---@return { L: number, C: number, H: number } OKLCH table; H in [0, 360)
 function M.rgb_to_oklch(r, g, b)
   local lr = M.linearize(r)
   local lg = M.linearize(g)
@@ -103,7 +153,12 @@ function M.rgb_to_oklch(r, g, b)
   return { L = L, C = C, H = H }
 end
 
--- Check if a color is within sRGB gamut (with small epsilon)
+--- Check whether linear RGB values fall within the sRGB gamut.
+--- A small epsilon permits floating-point rounding near the boundary.
+---@param r number Linear red
+---@param g number Linear green
+---@param b number Linear blue
+---@return boolean True if all channels are within [−ε, 1+ε]
 local function in_gamut(r, g, b)
   local eps = 1e-4
   return r >= -eps and r <= 1 + eps
@@ -111,13 +166,17 @@ local function in_gamut(r, g, b)
      and b >= -eps and b <= 1 + eps
 end
 
--- Binary search for maximum chroma at given (L, H) within sRGB gamut
+--- Find the maximum sRGB-gamut chroma at a given lightness and hue.
+--- Uses 20 iterations of binary search between C=0 and C=0.4.
+--- The check is performed on the pre-delinearize linear values to
+--- avoid gamut-clipping masking an out-of-gamut result.
+---@param L number Oklab lightness in [0, 1]
+---@param H number Hue angle in degrees [0, 360)
+---@return number Maximum chroma value that stays within the sRGB gamut
 function M.max_chroma(L, H)
   local lo, hi = 0, 0.4
   for _ = 1, 20 do
     local mid = (lo + hi) / 2
-    local rgb = M.oklch_to_rgb(L, mid, H)
-    -- Check linear values before delinearize clamping
     local h_rad = H * math.pi / 180
     local a = mid * math.cos(h_rad)
     local b = mid * math.sin(h_rad)
@@ -131,22 +190,30 @@ function M.max_chroma(L, H)
   return lo
 end
 
--- Compute target WCAG luminance for a desired contrast ratio
--- Dark bg: lighter fg; Light bg: darker fg
+--- Compute the target WCAG relative luminance for a desired contrast ratio.
+--- For dark backgrounds (Y_bg < 0.18) the foreground is lighter;
+--- for light backgrounds the foreground is darker.
+--- Result is clamped to [0, 1].
+---@param Y_bg number Background WCAG luminance in [0, 1]
+---@param cr number Desired contrast ratio, e.g. 4.5 for WCAG AA
+---@return number Target foreground luminance Y_fg in [0, 1]
 function M.luminance_for_contrast(Y_bg, cr)
   local Y_fg
   if Y_bg < 0.18 then
-    -- dark background: fg is lighter
     Y_fg = cr * (Y_bg + 0.05) - 0.05
   else
-    -- light background: fg is darker
     Y_fg = (Y_bg + 0.05) / cr - 0.05
   end
   return math.max(0, math.min(1, Y_fg))
 end
 
--- Binary search for Oklab L value that hits a target WCAG luminance
--- at fixed C and H (achromatic when C=0)
+--- Binary-search for the Oklab L value whose WCAG luminance equals Y_target,
+--- at fixed chroma C and hue H. Pass C=0 for an achromatic (grey) color.
+--- Uses 30 iterations, giving precision of ~1e-9.
+---@param Y_target number Target WCAG luminance in [0, 1]
+---@param C number Chroma to hold fixed during the search
+---@param H number Hue angle in degrees to hold fixed during the search
+---@return number Oklab L value in [0, 1]
 function M.L_for_luminance(Y_target, C, H)
   local lo, hi = 0, 1
   for _ = 1, 30 do

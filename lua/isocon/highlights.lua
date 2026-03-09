@@ -1,11 +1,21 @@
--- isocon/highlights.lua — Highlight group definitions
+--- isocon/highlights.lua
+--- Returns the full table of Neovim highlight group definitions.
+--- Groups are organized into sections: Core UI, Syntax, Treesitter,
+--- LSP semantic tokens, Diagnostics, Git diff, and Spell.
 
 local M = {}
 
+--- Build and return the highlight group table for the given palette.
+--- Each key is a highlight group name; each value is a spec table accepted
+--- by `vim.api.nvim_set_hl()` (fields: fg, bg, bold, italic, link, etc.).
+---@param p table Palette produced by `require('isocon.palette').generate()`
+---@return table<string, table> Map of group name → highlight spec
 function M.get(p)
   local hl = {}
 
-  -- Helper: set a highlight entry
+  --- Register a highlight group spec into the output table.
+  ---@param group string Neovim highlight group name
+  ---@param spec table Highlight spec (fg, bg, bold, italic, link, …)
   local function h(group, spec)
     hl[group] = spec
   end
@@ -125,14 +135,22 @@ function M.get(p)
   -- ────────────────────────────────────────────────
   h('@comment',              { link = 'Comment' })
   h('@comment.documentation',{ fg = p.fg_dim, italic = true })
+  h('@comment.error',        { fg = p.red,    bold = true })   -- ERROR/FIXME
+  h('@comment.warning',      { fg = p.yellow, bold = true })   -- WARN/HACK
+  h('@comment.todo',         { fg = p.yellow, bold = true })   -- TODO
+  h('@comment.note',         { fg = p.cyan,   bold = true })   -- NOTE/INFO
 
   h('@string',               { link = 'String' })
   h('@string.escape',        { fg = p.magenta })
   h('@string.special',       { fg = p.magenta })
-  h('@string.regex',         { fg = p.magenta })
+  h('@string.special.symbol',{ fg = p.magenta })  -- Ruby symbols, etc.
+  h('@string.special.url',   { fg = p.cyan, underline = true })
+  h('@string.regexp',        { fg = p.magenta })  -- new name
+  h('@string.regex',         { fg = p.magenta })  -- old name
 
   h('@number',               { link = 'Number' })
   h('@float',                { link = 'Float' })
+  h('@number.float',         { link = 'Float' }) -- new name
   h('@boolean',              { link = 'Boolean' })
 
   h('@character',            { link = 'Character' })
@@ -144,11 +162,14 @@ function M.get(p)
   h('@keyword',              { link = 'Keyword' })
   h('@keyword.function',     { fg = p.blue, bold = true })
   h('@keyword.operator',     { fg = p.blue })
-  h('@keyword.return',       { fg = p.blue, bold = true })
+  h('@keyword.return',       { fg = p.red, bold = true })
   h('@keyword.import',       { fg = p.magenta })
   h('@keyword.conditional',  { link = 'Conditional' })
   h('@keyword.repeat',       { link = 'Repeat' })
   h('@keyword.exception',    { link = 'Exception' })
+  h('@keyword.coroutine',    { fg = p.blue, bold = true, italic = true }) -- async/await/yield
+  h('@keyword.storage',      { fg = p.blue })                              -- static, extern
+  h('@keyword.modifier',     { fg = p.blue })                              -- public, private, readonly
 
   h('@operator',             { link = 'Operator' })
   h('@punctuation',          { fg = p.fg })
@@ -169,13 +190,15 @@ function M.get(p)
   h('@type.builtin',         { fg = p.yellow, bold = true })
   h('@type.qualifier',       { fg = p.blue })
   h('@type.definition',      { fg = p.yellow })
+  h('@type.parameter',       { fg = p.yellow, italic = true }) -- generic T
 
-  h('@variable',             { fg = p.fg })
-  h('@variable.builtin',     { fg = p.red })
-  h('@variable.member',      { fg = p.fg })
-  h('@variable.parameter',   { fg = p.fg })
+  h('@variable',                  { fg = p.fg })
+  h('@variable.builtin',          { fg = p.red })               -- self, this, super
+  h('@variable.member',           { fg = p.cyan })                -- struct fields, table keys
+  h('@variable.parameter',        { fg = p.fg, italic = true }) -- function params
+  h('@variable.parameter.builtin',{ fg = p.red, italic = true }) -- implicit self
 
-  h('@property',             { fg = p.fg })
+  h('@property',             { fg = p.fg })                 -- dot-access fields
 
   h('@namespace',            { fg = p.yellow })
   h('@module',               { fg = p.yellow })
@@ -191,33 +214,93 @@ function M.get(p)
   h('@tag.delimiter',        { fg = p.fg_dim })
 
   -- ────────────────────────────────────────────────
+  -- Treesitter — old node names (pre-rename compat)
+  -- ────────────────────────────────────────────────
+  h('@field',                { link = '@variable.member' }) -- pre-rename compat
+  h('@method',               { link = '@function.method' })
+  h('@method.call',          { link = '@function.method.call' })
+  h('@parameter',            { link = '@variable.parameter' })
+  -- @text.* (markdown / documentation parsers)
+  h('@text.literal',         { link = 'String' })
+  h('@text.reference',       { link = 'Identifier' })
+  h('@text.title',           { link = 'Title' })
+  h('@text.uri',             { fg = p.cyan, underline = true })
+  h('@text.underline',       { underline = true })
+  h('@text.todo',            { link = 'Todo' })
+  h('@text.note',            { fg = p.cyan,   bold = true })
+  h('@text.warning',         { fg = p.yellow, bold = true })
+  h('@text.danger',          { fg = p.red,    bold = true })
+  h('@text.diff.add',        { link = 'DiffAdd' })
+  h('@text.diff.delete',     { link = 'DiffDelete' })
+  h('@text.strong',          { bold = true })
+  h('@text.emphasis',        { italic = true })
+  h('@text.strike',          { strikethrough = true })
+  -- markup (new names for markdown etc.)
+  h('@markup.strong',        { bold = true })
+  h('@markup.italic',        { italic = true })
+  h('@markup.strikethrough', { strikethrough = true })
+  h('@markup.underline',     { underline = true })
+  h('@markup.heading',       { fg = p.blue, bold = true })
+  h('@markup.heading.1',     { fg = p.blue,    bold = true })
+  h('@markup.heading.2',     { fg = p.cyan,    bold = true })
+  h('@markup.heading.3',     { fg = p.green,   bold = true })
+  h('@markup.heading.4',     { fg = p.yellow })
+  h('@markup.heading.5',     { fg = p.magenta })
+  h('@markup.heading.6',     { fg = p.fg_dim })
+  h('@markup.quote',         { fg = p.fg_dim, italic = true })
+  h('@markup.math',          { fg = p.yellow })
+  h('@markup.link',          { fg = p.cyan })
+  h('@markup.link.label',    { fg = p.cyan })
+  h('@markup.link.url',      { fg = p.cyan, underline = true })
+  h('@markup.raw',           { link = 'String' })
+  h('@markup.raw.block',     { link = 'String' })
+  h('@markup.list',          { fg = p.fg_dim })
+  h('@markup.list.checked',  { fg = p.green })
+  h('@markup.list.unchecked',{ fg = p.fg_dim })
+
+  -- ────────────────────────────────────────────────
   -- LSP semantic tokens (link to treesitter)
   -- ────────────────────────────────────────────────
-  h('@lsp.type.function',    { link = '@function' })
-  h('@lsp.type.method',      { link = '@function.method' })
-  h('@lsp.type.variable',    { link = '@variable' })
-  h('@lsp.type.parameter',   { link = '@variable.parameter' })
-  h('@lsp.type.property',    { link = '@property' })
-  h('@lsp.type.type',        { link = '@type' })
-  h('@lsp.type.class',       { link = '@type' })
-  h('@lsp.type.enum',        { link = '@type' })
-  h('@lsp.type.enumMember',  { link = '@constant' })
-  h('@lsp.type.interface',   { link = '@type' })
-  h('@lsp.type.namespace',   { link = '@namespace' })
-  h('@lsp.type.struct',      { link = '@type' })
-  h('@lsp.type.decorator',   { link = '@attribute' })
-  h('@lsp.type.macro',       { link = '@constant.macro' })
-  h('@lsp.type.keyword',     { link = '@keyword' })
-  h('@lsp.type.string',      { link = '@string' })
-  h('@lsp.type.number',      { link = '@number' })
-  h('@lsp.type.operator',    { link = '@operator' })
-  h('@lsp.type.comment',     { link = '@comment' })
+  h('@lsp.type.function',        { link = '@function' })
+  h('@lsp.type.method',          { link = '@function.method' })
+  h('@lsp.type.variable',        { link = '@variable' })
+  h('@lsp.type.parameter',       { link = '@variable.parameter' })
+  h('@lsp.type.property',        { link = '@property' })
+  h('@lsp.type.type',            { link = '@type' })
+  h('@lsp.type.class',           { link = '@type' })
+  h('@lsp.type.enum',            { link = '@type' })
+  h('@lsp.type.enumMember',      { link = '@constant' })
+  h('@lsp.type.interface',       { link = '@type' })
+  h('@lsp.type.namespace',       { link = '@namespace' })
+  h('@lsp.type.struct',          { link = '@type' })
+  h('@lsp.type.decorator',       { link = '@attribute' })
+  h('@lsp.type.macro',           { link = '@constant.macro' })
+  h('@lsp.type.keyword',         { link = '@keyword' })
+  h('@lsp.type.string',          { link = '@string' })
+  h('@lsp.type.number',          { link = '@number' })
+  h('@lsp.type.boolean',         { link = '@boolean' })
+  h('@lsp.type.operator',        { link = '@operator' })
+  h('@lsp.type.comment',         { link = '@comment' })
+  h('@lsp.type.typeParameter',   { link = '@type.parameter' }) -- generic T (TS, Java, Rust)
+  h('@lsp.type.lifetime',        { fg = p.magenta, italic = true }) -- Rust lifetimes
+  h('@lsp.type.builtinType',     { link = '@type.builtin' })
+  h('@lsp.type.selfKeyword',     { link = '@variable.builtin' })
+  h('@lsp.type.selfTypeKeyword', { link = '@type.builtin' })
+  h('@lsp.type.regexp',          { link = '@string.regexp' })
+  h('@lsp.type.event',           { fg = p.magenta })
+  h('@lsp.type.label',           { link = '@label' })
 
-  h('@lsp.mod.deprecated',   { strikethrough = true })
-  h('@lsp.mod.readonly',     { italic = true })
-  h('@lsp.mod.static',       { italic = true })
-  h('@lsp.mod.abstract',     { italic = true })
-  h('@lsp.mod.async',        { italic = true })
+  h('@lsp.mod.deprecated',       { strikethrough = true })
+  h('@lsp.mod.readonly',         { italic = true })
+  h('@lsp.mod.static',           { italic = true })
+  h('@lsp.mod.abstract',         { italic = true })
+  h('@lsp.mod.async',            { italic = true })
+  h('@lsp.mod.declaration',      {})                           -- no extra styling
+  h('@lsp.mod.definition',       {})
+  h('@lsp.mod.documentation',    { italic = true })
+  h('@lsp.mod.modification',     {})
+  h('@lsp.mod.virtual',          { italic = true })
+  h('@lsp.mod.defaultLibrary',   { bold = true })              -- built-in stdlib symbols
 
   -- ────────────────────────────────────────────────
   -- Diagnostics
