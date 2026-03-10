@@ -1,1 +1,1 @@
-require('isocon').load()
+require("isocon").load()

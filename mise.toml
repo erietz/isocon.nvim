@@ -1,0 +1,10 @@
+[tools]
+stylua = "latest"
+
+[tasks."lint"]
+description = "Lint all lua files"
+run = "stylua --check -a ."
+
+[tasks."format"]
+description = "Format all lua files"
+run = "stylua -a ."
