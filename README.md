@@ -17,26 +17,52 @@ With [lazy.nvim](https://github.com/folke/lazy.nvim):
 ## Usage
 
 ```lua
+vim.cmd('colorscheme isocon')
+```
+
+The colorscheme auto-detects `vim.o.background` and applies the appropriate defaults. You can also call `setup()` to override specific values:
+
+```lua
 require('isocon').setup({
-  background   = '#1a1a2e', -- any hex color; dark/light auto-detected
-  contrast     = 4.5,       -- WCAG contrast ratio (AA = 4.5, AAA = 7.0)
-  bright_boost = 1.35,      -- chroma multiplier for bright terminal colors
+  background   = '#282c34', -- any hex color; dark/light auto-detected
+  contrast     = 5.0,       -- WCAG contrast ratio (AA = 4.5, AAA = 7.0)
+  bright_boost = 1.3,       -- chroma multiplier for bright terminal colors
   hues = {                  -- OKLCH hue angles in degrees (all optional)
     red     = 25,
-    green   = 145,
+    green   = 150,
     yellow  = 85,
     blue    = 260,
-    magenta = 325,
+    magenta = 305,
     cyan    = 200,
   },
 })
 vim.cmd('colorscheme isocon')
 ```
 
-Or without `setup` to use the defaults:
+### Defaults
+
+Defaults are chosen based on `vim.o.background`:
+
+| Option        | dark      | light     |
+|---------------|-----------|-----------|
+| `background`  | `#282c34` | `#fdf6e3` |
+| `contrast`    | `5.0`     | `3.0`     |
+| `bright_boost`| `1.3`     | `1.2`     |
+| `green` hue   | `150°`    | `150°`    |
+| `magenta` hue | `305°`    | `305°`    |
+
+### Printing terminal colors
+
+To get the 16 ANSI terminal color values for your current config (useful for configuring your terminal emulator):
 
 ```lua
-vim.cmd('colorscheme isocon')
+require('isocon').print_colors()
+```
+
+Or as a command:
+
+```vim
+:lua require('isocon').print_colors()
 ```
 
 ## How it works
@@ -57,10 +83,10 @@ The six hues are fixed by default in OKLCH (all overridable via `hues`):
 |---------|------:|-------|
 | red     |  25°  | Warm red — lower drifts pink, higher drifts orange |
 | yellow  |  85°  | Pure yellow — lower is orange, higher is yellow-green |
-| green   | 145°  | Mid green — lower is lime, higher is teal |
+| green   | 150°  | Mid green — lower is lime, higher is teal |
 | cyan    | 200°  | Teal-cyan — lower merges with green, higher drifts blue |
 | blue    | 260°  | Prototypical blue — lower is violet, higher is indigo |
-| magenta | 325°  | Clear magenta — lower is purple, higher is hot pink |
+| magenta | 305°  | Clear magenta — lower is purple, higher is hot pink |
 
 These are **not** evenly spaced, because colors are not evenly distributed around the perceptual wheel. Yellow and green dominate a large arc (~85°–180°, nearly a third of the wheel) while red and magenta occupy a much narrower band (~0°–40° and 300°–360°). OKLCH partially corrects for this compared to HSL, but the unevenness remains — so the hues are placed where each color is most unambiguously recognizable, not at equal intervals.
 

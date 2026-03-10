@@ -5,27 +5,46 @@
 
 local M = {}
 
---- Default configuration values.
----@type { background: string, contrast: number, bright_boost: number, hues: table<string, number> }
-local defaults = {
-	background = "#1a1a2e", -- hex color that drives the entire palette
-	contrast = 4.5, -- WCAG contrast ratio (AA = 4.5, AAA = 7.0)
-	bright_boost = 1.35, -- chroma multiplier for bright terminal colors (8–15)
+--- Default configuration values for dark backgrounds.
+local defaults_dark = {
+	background = "#282c34",
+	contrast = 5.0,
+	bright_boost = 1.3,
 	hues = { -- OKLCH hue angles (°) for each semantic color role
 		red = 25,
-		green = 145,
+		green = 150,
 		yellow = 85,
 		blue = 260,
-		magenta = 325,
+		magenta = 305,
 		cyan = 200,
 	},
 }
+
+--- Default configuration values for light backgrounds.
+local defaults_light = {
+	background = "#fdf6e3",
+	contrast = 3.0,
+	bright_boost = 1.2,
+	hues = {
+		red = 25,
+		green = 150,
+		yellow = 85,
+		blue = 260,
+		magenta = 305,
+		cyan = 200,
+	},
+}
+
+--- Returns the default config for the current vim.o.background setting.
+local function get_defaults()
+	return vim.o.background == "light" and defaults_light or defaults_dark
+end
 
 --- Store user config, merged over defaults.
 --- Calling setup() is optional; load() uses defaults if setup() was never called.
 ---@param opts? { background?: string, contrast?: number, bright_boost?: number, hues?: table<string, number> }
 function M.setup(opts)
-	M.config = vim.tbl_deep_extend("force", defaults, opts or {})
+	M.config = vim.tbl_deep_extend("force", get_defaults(), opts or {})
 end
 
 --- Apply the colorscheme to the current Neovim session.
@@ -33,7 +52,7 @@ end
 --- sets all highlight groups, and configures the 16 terminal colors.
 --- `vim.o.background` is set automatically based on the background luminance.
 function M.load()
-	local cfg = M.config or defaults
+	local cfg = M.config or get_defaults()
 
 	vim.cmd("highlight clear")
 	if vim.fn.exists("syntax_on") then
@@ -76,6 +95,37 @@ function M.load()
 	vim.g.terminal_color_13 = p.br_magenta
 	vim.g.terminal_color_14 = p.br_cyan
 	vim.g.terminal_color_15 = p.fg
+end
+
+--- Print the 16 ANSI terminal colors for the current config to the messages area.
+--- Useful for copying values into terminal emulator configs.
+function M.print_colors()
+	local cfg = M.config or get_defaults()
+	local p = require("isocon.palette").generate(cfg)
+
+	local slots = {
+		{ 0, "black   ", p.bg },
+		{ 1, "red     ", p.red },
+		{ 2, "green   ", p.green },
+		{ 3, "yellow  ", p.yellow },
+		{ 4, "blue    ", p.blue },
+		{ 5, "magenta ", p.magenta },
+		{ 6, "cyan    ", p.cyan },
+		{ 7, "white   ", p.fg },
+		{ 8, "br_black   ", p.bg_subtle },
+		{ 9, "br_red     ", p.br_red },
+		{ 10, "br_green   ", p.br_green },
+		{ 11, "br_yellow  ", p.br_yellow },
+		{ 12, "br_blue    ", p.br_blue },
+		{ 13, "br_magenta ", p.br_magenta },
+		{ 14, "br_cyan    ", p.br_cyan },
+		{ 15, "br_white   ", p.fg },
+	}
+
+	print("isocon terminal colors:")
+	for _, s in ipairs(slots) do
+		print(string.format("  %2d  %s  %s", s[1], s[2], s[3]))
+	end
 end
 
 return M
