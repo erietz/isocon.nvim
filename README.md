@@ -2,6 +2,10 @@
 
 A Neovim colorscheme where every syntax color has the same WCAG contrast ratio against the background, and hues are evenly spaced in perceptual color space.
 
+![Dark Background](./assets/screenshot-dark.png)
+
+![Light Background](./assets/screenshot-light.png)
+
 ## Installation
 
 With [lazy.nvim](https://github.com/folke/lazy.nvim):
