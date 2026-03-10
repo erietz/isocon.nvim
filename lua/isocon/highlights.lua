@@ -47,7 +47,7 @@ function M.get(p)
   h('TabLineSel',    { fg = p.fg,     bg = p.bg,        bold = true })
   h('TabLineFill',   { bg = p.bg_subtle })
 
-  h('Visual',        { bg = p.bg_subtle, reverse = false })
+  h('Visual',        { bg = p.bg_visual, reverse = false })
   h('VisualNOS',     { link = 'Visual' })
 
   h('Search',        { fg = p.bg,  bg = p.yellow })

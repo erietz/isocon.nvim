@@ -78,22 +78,34 @@ function M.generate(opts)
   local bg_oklch = color.rgb_to_oklch(bg_rgb.r, bg_rgb.g, bg_rgb.b)
 
   local subtle_L = is_dark
-    and math.min(1, bg_oklch.L + 0.04)
-    or  math.max(0, bg_oklch.L - 0.04)
-  local subtle_rgb = color.oklch_to_rgb(subtle_L, bg_oklch.C, bg_oklch.H)
-
-  local float_L = is_dark
     and math.min(1, bg_oklch.L + 0.02)
     or  math.max(0, bg_oklch.L - 0.02)
-  local float_rgb = color.oklch_to_rgb(float_L, bg_oklch.C, bg_oklch.H)
+  local subtle_H = is_dark and 240 or bg_oklch.H
+  local subtle_C = is_dark and 0.03 or bg_oklch.C
+  local subtle_rgb = color.oklch_to_rgb(subtle_L, subtle_C, subtle_H)
+
+  local visual_L = is_dark
+    and math.min(1, bg_oklch.L + 0.06)
+    or  math.max(0, bg_oklch.L - 0.06)
+  local visual_H = is_dark and 230 or bg_oklch.H
+  local visual_C = is_dark and 0.05 or bg_oklch.C
+  local visual_rgb = color.oklch_to_rgb(visual_L, visual_C, visual_H)
+
+  local float_L = is_dark
+    and math.min(1, bg_oklch.L + 0.04)
+    or  math.max(0, bg_oklch.L - 0.04)
+  local float_H = is_dark and 235 or bg_oklch.H
+  local float_C = is_dark and 0.04 or bg_oklch.C
+  local float_rgb = color.oklch_to_rgb(float_L, float_C, float_H)
 
   local palette = {
-    bg        = bg_hex,
-    fg        = color.rgb_to_hex(fg_rgb.r,     fg_rgb.g,     fg_rgb.b),
-    fg_dim    = color.rgb_to_hex(dim_rgb.r,    dim_rgb.g,    dim_rgb.b),
-    bg_subtle = color.rgb_to_hex(subtle_rgb.r, subtle_rgb.g, subtle_rgb.b),
-    bg_float  = color.rgb_to_hex(float_rgb.r,  float_rgb.g,  float_rgb.b),
-    is_dark   = is_dark,
+    bg         = bg_hex,
+    fg         = color.rgb_to_hex(fg_rgb.r,     fg_rgb.g,     fg_rgb.b),
+    fg_dim     = color.rgb_to_hex(dim_rgb.r,    dim_rgb.g,    dim_rgb.b),
+    bg_subtle  = color.rgb_to_hex(subtle_rgb.r, subtle_rgb.g, subtle_rgb.b),
+    bg_visual  = color.rgb_to_hex(visual_rgb.r, visual_rgb.g, visual_rgb.b),
+    bg_float   = color.rgb_to_hex(float_rgb.r,  float_rgb.g,  float_rgb.b),
+    is_dark    = is_dark,
   }
 
   -- Generate each chromatic color and its bright variant
