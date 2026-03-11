@@ -74,7 +74,7 @@ local function gen_tmux(p)
 	local lines = {
 		"# Isocon " .. label .. " theme for tmux",
 		"",
-		string.format('set -g status-style "bg=%s,fg=%s"', p.bg, p.fg_dim),
+		string.format('set -g status-style "bg=%s,fg=%s"', p.bg, p.fg),
 		string.format('set -g message-style "bg=%s,fg=%s"', p.bg_visual, p.fg),
 		string.format(
 			'set -g message-command-style "bg=%s,fg=%s"',
@@ -84,8 +84,8 @@ local function gen_tmux(p)
 		string.format('set -g mode-style "bg=%s,fg=%s"', p.bg_visual, p.fg),
 		string.format('set -g pane-border-style "fg=%s"', p.bg_subtle),
 		string.format('set -g pane-active-border-style "fg=%s"', p.blue),
-		string.format('set -g window-status-current-style "fg=%s,bold"', p.fg),
-		string.format('set -g window-status-style "fg=%s"', p.fg_dim),
+		string.format('set -g window-status-current-style "fg=%s,bold"', p.blue),
+		string.format('set -g window-status-style "fg=%s"', p.fg),
 	}
 	return table.concat(lines, "\n") .. "\n"
 end
