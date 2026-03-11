@@ -5,24 +5,14 @@
 -- Set up package.path so we can require isocon modules without Neovim
 local source = debug.getinfo(1, "S").source:gsub("^@", "")
 local script_dir = source:match("(.*/)") or "./"
-package.path = script_dir .. "lua/?.lua;" .. script_dir .. "lua/?/init.lua;" .. package.path
+package.path = script_dir
+	.. "lua/?.lua;"
+	.. script_dir
+	.. "lua/?/init.lua;"
+	.. package.path
 
 local palette = require("isocon.palette")
-
--- Configs: use isocon user config if running inside Neovim, otherwise defaults
-local defaults_dark = {
-	background = "#282c34",
-	contrast = 5.0,
-	bright_boost = 1.3,
-	hues = { red = 25, green = 150, yellow = 85, blue = 260, magenta = 305, cyan = 200 },
-}
-
-local defaults_light = {
-	background = "#fdf6e3",
-	contrast = 3.0,
-	bright_boost = 1.2,
-	hues = { red = 25, green = 150, yellow = 85, blue = 260, magenta = 305, cyan = 200 },
-}
+local defaults = require("isocon.defaults")
 
 local function get_config(variant)
 	if vim then
@@ -31,7 +21,7 @@ local function get_config(variant)
 			return isocon.config
 		end
 	end
-	return variant == "light" and defaults_light or defaults_dark
+	return variant == "light" and defaults.light or defaults.dark
 end
 
 -- Strip leading # from hex color
@@ -86,7 +76,11 @@ local function gen_tmux(p)
 		"",
 		string.format('set -g status-style "bg=%s,fg=%s"', p.bg, p.fg_dim),
 		string.format('set -g message-style "bg=%s,fg=%s"', p.bg_visual, p.fg),
-		string.format('set -g message-command-style "bg=%s,fg=%s"', p.bg_visual, p.fg),
+		string.format(
+			'set -g message-command-style "bg=%s,fg=%s"',
+			p.bg_visual,
+			p.fg
+		),
 		string.format('set -g mode-style "bg=%s,fg=%s"', p.bg_visual, p.fg),
 		string.format('set -g pane-border-style "fg=%s"', p.bg_subtle),
 		string.format('set -g pane-active-border-style "fg=%s"', p.blue),
@@ -140,10 +134,12 @@ end
 local base = script_dir or "./"
 for _, variant in ipairs({ "dark", "light" }) do
 	local cfg = get_config(variant)
-	if variant == "light" and cfg.background == defaults_dark.background then
-		cfg = defaults_light
-	elseif variant == "dark" and cfg.background == defaults_light.background then
-		cfg = defaults_dark
+	if variant == "light" and cfg.background == defaults.dark.background then
+		cfg = defaults.light
+	elseif
+		variant == "dark" and cfg.background == defaults.light.background
+	then
+		cfg = defaults.dark
 	end
 	local p = palette.generate(cfg)
 

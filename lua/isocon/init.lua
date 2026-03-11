@@ -5,44 +5,17 @@
 
 local M = {}
 
---- Default configuration values for dark backgrounds.
-local defaults_dark = {
-	background = "#282c34",
-	contrast = 5.0,
-	bright_boost = 1.3,
-	hues = { -- OKLCH hue angles (°) for each semantic color role
-		red = 25,
-		green = 150,
-		yellow = 85,
-		blue = 260,
-		magenta = 305,
-		cyan = 200,
-	},
-}
-
---- Default configuration values for light backgrounds.
-local defaults_light = {
-	background = "#fdf6e3",
-	contrast = 3.0,
-	bright_boost = 1.2,
-	hues = {
-		red = 25,
-		green = 150,
-		yellow = 85,
-		blue = 260,
-		magenta = 305,
-		cyan = 200,
-	},
-}
+local defaults = require("isocon.defaults")
 
 --- Returns the default config for the current vim.o.background setting.
+---@return IsoconConfig
 local function get_defaults()
-	return vim.o.background == "light" and defaults_light or defaults_dark
+	return vim.o.background == "light" and defaults.light or defaults.dark
 end
 
 --- Store user config, merged over defaults.
 --- Calling setup() is optional; load() uses defaults if setup() was never called.
----@param opts? { background?: string, contrast?: number, bright_boost?: number, hues?: table<string, number> }
+---@param opts? IsoconConfig
 function M.setup(opts)
 	M.config = vim.tbl_deep_extend("force", get_defaults(), opts or {})
 end
