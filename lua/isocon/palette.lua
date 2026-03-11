@@ -7,6 +7,18 @@ local color = require("isocon.color")
 
 local M = {}
 
+--- Shallow-merge two tables (plain Lua, no vim dependency).
+local function tbl_merge(base, override)
+	local result = {}
+	for k, v in pairs(base) do
+		result[k] = v
+	end
+	for k, v in pairs(override) do
+		result[k] = v
+	end
+	return result
+end
+
 --- Default OKLCH hue angles for each semantic color role.
 --- Values are chosen to be perceptually recognizable as their named color.
 --- See the README for a full explanation of each choice.
@@ -49,7 +61,7 @@ function M.generate(opts)
 	local bg_hex = opts.background or "#1a1a2e"
 	local contrast = opts.contrast or 4.5
 	local bright_boost = opts.bright_boost or 1.35
-	local hues = vim.tbl_extend("force", DEFAULT_HUES, opts.hues or {})
+	local hues = tbl_merge(DEFAULT_HUES, opts.hues or {})
 
 	-- Parse background and derive its WCAG luminance
 	local bg_rgb = color.hex_to_rgb(bg_hex)
