@@ -40,7 +40,7 @@ local function ansi(p)
 		[5] = p.magenta,
 		[6] = p.cyan,
 		[7] = p.fg,
-		[8] = p.is_dark and p.bg_subtle or p.fg_dim,
+		[8] = p.fg_dim,
 		[9] = p.br_red,
 		[10] = p.br_green,
 		[11] = p.br_yellow,
@@ -144,9 +144,9 @@ for _, variant in ipairs({ "dark", "light" }) do
 	local p = palette.generate(cfg)
 
 	local dir = base .. "extras/" .. variant .. "/"
-	write_file(dir .. "ghostty", gen_ghostty(p))
-	write_file(dir .. "isocon.tmux", gen_tmux(p))
-	write_file(dir .. "isocon.fish", gen_fish(p))
+	write_file(dir .. "isocon-" .. variant .. ".ghostty", gen_ghostty(p))
+	write_file(dir .. "isocon-" .. variant .. ".tmux", gen_tmux(p))
+	write_file(dir .. "isocon-" .. variant .. ".fish", gen_fish(p))
 
 	print("Generated " .. variant .. " extras in " .. dir)
 end
