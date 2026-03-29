@@ -2,8 +2,8 @@ background = 282c34
 foreground = 9a9a9a
 cursor-color = 9a9a9a
 cursor-text = 282c34
-selection-background = 1c4050
-selection-foreground = 9a9a9a
+selection-background = 9a9a9a
+selection-foreground = 282c34
 palette = 0=#282c34
 palette = 1=#ea7a73
 palette = 2=#4cad66

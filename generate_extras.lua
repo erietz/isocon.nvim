@@ -59,8 +59,8 @@ local function gen_ghostty(p)
 		"foreground = " .. bare(p.fg),
 		"cursor-color = " .. bare(p.cursor_bg),
 		"cursor-text = " .. bare(p.cursor_fg),
-		"selection-background = " .. bare(p.bg_visual),
-		"selection-foreground = " .. bare(p.fg),
+		"selection-background = " .. bare(p.fg),
+		"selection-foreground = " .. bare(p.bg),
 	}
 	for i = 0, 15 do
 		lines[#lines + 1] = "palette = " .. i .. "=#" .. bare(a[i])
@@ -81,7 +81,7 @@ local function gen_tmux(p)
 			p.bg_visual,
 			p.fg
 		),
-		string.format('set -g mode-style "bg=%s,fg=%s"', p.bg_visual, p.fg),
+		string.format('set -g mode-style "bg=%s,fg=%s"', p.fg, p.bg),
 		string.format('set -g pane-border-style "fg=%s"', p.bg_subtle),
 		string.format('set -g pane-active-border-style "fg=%s"', p.blue),
 		string.format('set -g window-status-current-style "fg=%s,bold"', p.blue),
@@ -105,8 +105,8 @@ local function gen_fish(p)
 		"set -g fish_color_error " .. bare(p.red),
 		"set -g fish_color_param " .. bare(p.fg),
 		"set -g fish_color_comment " .. bare(p.fg_dim),
-		"set -g fish_color_selection --background=" .. bare(p.bg_visual),
-		"set -g fish_color_search_match --background=" .. bare(p.bg_visual),
+		"set -g fish_color_selection --background=" .. bare(p.fg) .. " --color=" .. bare(p.bg),
+		"set -g fish_color_search_match --background=" .. bare(p.fg) .. " --color=" .. bare(p.bg),
 		"set -g fish_color_operator " .. bare(p.cyan),
 		"set -g fish_color_escape " .. bare(p.magenta),
 		"set -g fish_color_autosuggestion " .. bare(p.fg_dim),

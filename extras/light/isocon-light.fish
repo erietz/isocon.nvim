@@ -9,8 +9,8 @@ set -g fish_color_end ac75e5
 set -g fish_color_error e8655f
 set -g fish_color_param 8f8f8f
 set -g fish_color_comment cbcbcb
-set -g fish_color_selection --background=e9e2cf
-set -g fish_color_search_match --background=e9e2cf
+set -g fish_color_selection --background=8f8f8f --color=fdf6e3
+set -g fish_color_search_match --background=8f8f8f --color=fdf6e3
 set -g fish_color_operator 439498
 set -g fish_color_escape ac75e5
 set -g fish_color_autosuggestion cbcbcb

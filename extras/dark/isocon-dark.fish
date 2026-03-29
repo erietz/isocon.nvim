@@ -9,8 +9,8 @@ set -g fish_color_end b586e8
 set -g fish_color_error ea7a73
 set -g fish_color_param 9a9a9a
 set -g fish_color_comment 686868
-set -g fish_color_selection --background=1c4050
-set -g fish_color_search_match --background=1c4050
+set -g fish_color_selection --background=9a9a9a --color=282c34
+set -g fish_color_search_match --background=9a9a9a --color=282c34
 set -g fish_color_operator 49a1a6
 set -g fish_color_escape b586e8
 set -g fish_color_autosuggestion 686868
