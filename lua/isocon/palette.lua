@@ -91,20 +91,20 @@ function M.generate(opts)
 
 	local subtle_L = is_dark and math.min(1, bg_oklch.L + 0.02)
 		or math.max(0, bg_oklch.L - 0.02)
-	local subtle_H = bg_oklch.H
-	local subtle_C = math.min(0.02, bg_oklch.C)
+	local subtle_H = is_dark and 240 or bg_oklch.H
+	local subtle_C = is_dark and 0.03 or bg_oklch.C
 	local subtle_rgb = color.oklch_to_rgb(subtle_L, subtle_C, subtle_H)
 
 	local visual_L = is_dark and math.min(1, bg_oklch.L + 0.06)
 		or math.max(0, bg_oklch.L - 0.06)
-	local visual_H = bg_oklch.H
-	local visual_C = math.min(0.04, bg_oklch.C)
+	local visual_H = is_dark and 230 or bg_oklch.H
+	local visual_C = is_dark and 0.05 or bg_oklch.C
 	local visual_rgb = color.oklch_to_rgb(visual_L, visual_C, visual_H)
 
 	local float_L = is_dark and math.min(1, bg_oklch.L + 0.04)
 		or math.max(0, bg_oklch.L - 0.04)
-	local float_H = bg_oklch.H
-	local float_C = math.min(0.03, bg_oklch.C)
+	local float_H = is_dark and 235 or bg_oklch.H
+	local float_C = is_dark and 0.04 or bg_oklch.C
 	local float_rgb = color.oklch_to_rgb(float_L, float_C, float_H)
 
 	local palette = {
