@@ -51,6 +51,20 @@ Defaults are chosen based on `vim.o.background`:
 | `green` hue   | `150°`    | `150°`    |
 | `magenta` hue | `305°`    | `305°`    |
 
+### yazi
+
+Yazi's default theme leaves the foreground unset on `mode.normal_main` and
+`tabs.active`, so those segments fall back to the terminal's default foreground
+on a chromatic background. Isocon's isoluminant palette makes that pair nearly
+invisible. Drop the generated override in place to fix it:
+
+```sh
+ln -sf "$PWD/extras/light/isocon-light.yazi.toml" ~/.config/yazi/theme.toml
+```
+
+Or use the dark variant. Regenerate with `lua generate_extras.lua` after
+changing your isocon config.
+
 ### Printing terminal colors
 
 To get the 16 ANSI terminal color values for your current config (useful for configuring your terminal emulator):
