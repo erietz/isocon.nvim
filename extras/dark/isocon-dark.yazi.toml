@@ -1,0 +1,25 @@
+# Isocon Dark theme override for yazi.
+# Drop into ~/.config/yazi/theme.toml (or source via a flavor).
+
+[mgr]
+cwd            = { fg = "#49a1a6" }
+border_style   = { fg = "#23333f" }
+count_copied   = { fg = "#282c34", bg = "#4cad66" }
+count_cut      = { fg = "#282c34", bg = "#ea7a73" }
+count_selected = { fg = "#282c34", bg = "#b99647" }
+
+[tabs]
+active   = { fg = "#282c34", bg = "#6e9be7", bold = true }
+inactive = { fg = "#9a9a9a", bg = "#1c4050" }
+
+[mode]
+normal_main = { fg = "#282c34", bg = "#6e9be7", bold = true }
+normal_alt  = { fg = "#6e9be7", bg = "#1c4050" }
+select_main = { fg = "#282c34", bg = "#ea7a73", bold = true }
+select_alt  = { fg = "#ea7a73", bg = "#1c4050" }
+unset_main  = { fg = "#282c34", bg = "#ea7a73", bold = true }
+unset_alt   = { fg = "#ea7a73", bg = "#1c4050" }
+
+[status]
+progress_normal = { fg = "#282c34", bg = "#4cad66" }
+progress_error  = { fg = "#282c34", bg = "#ea7a73" }

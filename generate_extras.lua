@@ -90,6 +90,94 @@ local function gen_tmux(p)
 	return table.concat(lines, "\n") .. "\n"
 end
 
+-- Yazi theme override
+--
+-- Yazi's shipped default theme leaves `fg` unset on `mode.normal_main` and
+-- `tabs.active`, so those segments render with the terminal's default
+-- foreground on a chromatic background. Because isocon is isoluminant (every
+-- chromatic color shares WCAG luminance with `fg`), that pair has ~1.1:1
+-- contrast. This override pins `fg` to `p.bg` on chromatic backgrounds — the
+-- one pairing the palette explicitly guarantees at the configured ratio.
+local function gen_yazi(p)
+	local label = p.is_dark and "Dark" or "Light"
+	local lines = {
+		"# Isocon " .. label .. " theme override for yazi.",
+		"# Drop into ~/.config/yazi/theme.toml (or source via a flavor).",
+		"",
+		"[mgr]",
+		string.format('cwd            = { fg = "%s" }', p.cyan),
+		string.format('border_style   = { fg = "%s" }', p.bg_subtle),
+		string.format(
+			'count_copied   = { fg = "%s", bg = "%s" }',
+			p.bg,
+			p.green
+		),
+		string.format('count_cut      = { fg = "%s", bg = "%s" }', p.bg, p.red),
+		string.format(
+			'count_selected = { fg = "%s", bg = "%s" }',
+			p.bg,
+			p.yellow
+		),
+		"",
+		"[tabs]",
+		string.format(
+			'active   = { fg = "%s", bg = "%s", bold = true }',
+			p.bg,
+			p.blue
+		),
+		string.format(
+			'inactive = { fg = "%s", bg = "%s" }',
+			p.fg,
+			p.bg_visual
+		),
+		"",
+		"[mode]",
+		string.format(
+			'normal_main = { fg = "%s", bg = "%s", bold = true }',
+			p.bg,
+			p.blue
+		),
+		string.format(
+			'normal_alt  = { fg = "%s", bg = "%s" }',
+			p.blue,
+			p.bg_visual
+		),
+		string.format(
+			'select_main = { fg = "%s", bg = "%s", bold = true }',
+			p.bg,
+			p.red
+		),
+		string.format(
+			'select_alt  = { fg = "%s", bg = "%s" }',
+			p.red,
+			p.bg_visual
+		),
+		string.format(
+			'unset_main  = { fg = "%s", bg = "%s", bold = true }',
+			p.bg,
+			p.red
+		),
+		string.format(
+			'unset_alt   = { fg = "%s", bg = "%s" }',
+			p.red,
+			p.bg_visual
+		),
+		"",
+		"[status]",
+		string.format(
+			'progress_normal = { fg = "%s", bg = "%s" }',
+			p.bg,
+			p.green
+		),
+		string.format(
+			'progress_error  = { fg = "%s", bg = "%s" }',
+			p.bg,
+			p.red
+		),
+	}
+	return table.concat(lines, "\n") .. "\n"
+end
+
 -- Fish theme
 local function gen_fish(p)
 	local label = p.is_dark and "Dark" or "Light"
@@ -147,6 +235,7 @@ for _, variant in ipairs({ "dark", "light" }) do
 	write_file(dir .. "isocon-" .. variant .. ".ghostty", gen_ghostty(p))
 	write_file(dir .. "isocon-" .. variant .. ".tmux", gen_tmux(p))
 	write_file(dir .. "isocon-" .. variant .. ".fish", gen_fish(p))
+	write_file(dir .. "isocon-" .. variant .. ".yazi.toml", gen_yazi(p))
 
 	print("Generated " .. variant .. " extras in " .. dir)
 end
