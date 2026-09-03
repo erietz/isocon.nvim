@@ -27,7 +27,8 @@ The colorscheme auto-detects `vim.o.background` and applies the appropriate defa
 ```lua
 require('isocon').setup({
   background   = '#282c34', -- any hex color; dark/light auto-detected
-  contrast     = 5.0,       -- WCAG contrast ratio (AA = 4.5, AAA = 7.0)
+  contrast     = 5.0,       -- WCAG contrast ratio for text (AA = 4.5, AAA = 7.0)
+  dim_contrast = 2.5,       -- WCAG contrast ratio for comments / line numbers
   bright_boost = 1.3,       -- chroma multiplier for bright terminal colors
   hues = {                  -- OKLCH hue angles in degrees (all optional)
     red     = 25,
@@ -45,13 +46,16 @@ vim.cmd('colorscheme isocon')
 
 Defaults are chosen based on `vim.o.background`:
 
-| Option        | dark      | light     |
-|---------------|-----------|-----------|
-| `background`  | `#282c34` | `#fdf6e3` |
-| `contrast`    | `5.0`     | `3.0`     |
-| `bright_boost`| `1.3`     | `1.2`     |
-| `green` hue   | `150°`    | `150°`    |
-| `magenta` hue | `305°`    | `305°`    |
+| Option         | dark      | light     |
+|----------------|-----------|-----------|
+| `background`   | `#062329` | `#eef3ea` |
+| `contrast`     | `4.5`     | `4.5`     |
+| `dim_contrast` | `2.25`    | `3.0`     |
+| `bright_boost` | `1.3`     | `1.2`     |
+| `green` hue    | `150°`    | `150°`    |
+| `magenta` hue  | `305°`    | `305°`    |
+
+When `dim_contrast` is omitted it falls back to `max(1.5, contrast × 0.5)`.
 
 ### Printing terminal colors
 

@@ -50,7 +50,7 @@ local NAMES = { "red", "green", "yellow", "blue", "magenta", "cyan" }
 --- Individual hues can be overridden via `opts.hues`; any key not provided
 --- falls back to the DEFAULT_HUES value.
 ---
----@param opts { background: string, contrast: number, bright_boost: number, hues?: table<string, number> }
+---@param opts { background: string, contrast: number, bright_boost: number, dim_contrast?: number, hues?: table<string, number> }
 ---@return table Palette with the following string keys (all hex unless noted):
 ---   bg, fg, fg_dim, bg_subtle, bg_float,
 ---   red, green, yellow, blue, magenta, cyan,
@@ -73,9 +73,11 @@ function M.generate(opts)
 	-- Target luminance for normal foreground text at the requested contrast ratio
 	local Y_fg = color.luminance_for_contrast(Y_bg, contrast)
 
-	-- Dim foreground for comments and line numbers: half the contrast ratio,
-	-- clamped to a minimum of 1.5:1 to stay visible
-	local dim_cr = math.max(1.5, contrast * 0.5)
+	-- Dim foreground for comments and line numbers. When `opts.dim_contrast`
+	-- is set it is used directly, letting light and dark variants tune comment
+	-- legibility independently; otherwise fall back to half the main contrast
+	-- ratio, clamped to a minimum of 1.5:1 to stay visible.
+	local dim_cr = opts.dim_contrast or math.max(1.5, contrast * 0.5)
 	local Y_dim = color.luminance_for_contrast(Y_bg, dim_cr)
 
 	-- Achromatic (C=0) lightness values for fg and fg_dim
