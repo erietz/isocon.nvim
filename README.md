@@ -52,8 +52,12 @@ Defaults are chosen based on `vim.o.background`:
 | `contrast`     | `4.5`     | `4.5`     |
 | `dim_contrast` | `2.25`    | `3.0`     |
 | `bright_boost` | `1.3`     | `1.2`     |
+| `red` hue      | `0°`      | `25°`     |
+| `yellow` hue   | `60°`     | `85°`     |
 | `green` hue    | `150°`    | `150°`    |
-| `magenta` hue  | `305°`    | `305°`    |
+| `cyan` hue     | `180°`    | `200°`    |
+| `blue` hue     | `240°`    | `260°`    |
+| `magenta` hue  | `297°`    | `305°`    |
 
 When `dim_contrast` is omitted it falls back to `max(1.5, contrast × 0.5)`.
 
@@ -83,16 +87,16 @@ Every foreground color is generated from the background using the same three-ste
 
 **3. Max chroma**: binary-search for the highest chroma that keeps the color inside the sRGB gamut. Normal colors use 75% of that; bright variants use 100% (or `normal × bright_boost`, whichever is smaller).
 
-The six hues are fixed by default in OKLCH (all overridable via `hues`):
+The six hues differ by background (all overridable via `hues`). Light backgrounds nudge most hues to a slightly higher angle, since a hue that reads correctly at low lightness can drift at high lightness:
 
-| Color   | Angle | Notes |
-|---------|------:|-------|
-| red     |  25°  | Warm red; lower drifts pink, higher drifts orange |
-| yellow  |  85°  | Pure yellow; lower is orange, higher is yellow-green |
-| green   | 150°  | Mid green; lower is lime, higher is teal |
-| cyan    | 200°  | Teal-cyan; lower merges with green, higher drifts blue |
-| blue    | 260°  | Prototypical blue; lower is violet, higher is indigo |
-| magenta | 305°  | Clear magenta; lower is purple, higher is hot pink |
+| Color   | Dark | Light | Notes |
+|---------|-----:|------:|-------|
+| red     |   0° |   25° | Warm red; lower drifts pink, higher drifts orange |
+| yellow  |  60° |   85° | Pure yellow; lower is orange, higher is yellow-green |
+| green   | 150° |  150° | Mid green; lower is lime, higher is teal |
+| cyan    | 180° |  200° | Teal-cyan; lower merges with green, higher drifts blue |
+| blue    | 240° |  260° | Prototypical blue; lower is violet, higher is indigo |
+| magenta | 297° |  305° | Clear magenta; lower is purple, higher is hot pink |
 
 These are **not** evenly spaced, because colors are not evenly distributed around the perceptual wheel. Yellow and green dominate a large arc (~85°–180°, nearly a third of the wheel) while red and magenta occupy a much narrower band (~0°–40° and 300°–360°). OKLCH partially corrects for this compared to HSL, but the unevenness remains, so the hues are placed where each color is most unambiguously recognizable, not at equal intervals.
 

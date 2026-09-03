@@ -20,8 +20,20 @@ set -x
 cp ./extras/dark/isocon-dark.ghostty ~/.config/ghostty/themes/isocon-dark
 cp ./extras/light/isocon-light.ghostty ~/.config/ghostty/themes/isocon-light
 
-# cp ./extras/dark/isocon-dark.fish ~/.config/fish/conf.d/fish_frozen_theme.fish
-cp ./extras/light/isocon-light.fish ~/.config/fish/conf.d/fish_frozen_theme.fish
+# Fish auto-sources everything in conf.d, so keep both themes in a subdir it
+# won't source and use a small dispatcher to pick one by macOS appearance.
+mkdir -p ~/.config/fish/themes
+cp ./extras/dark/isocon-dark.fish ~/.config/fish/themes/isocon-dark.fish
+cp ./extras/light/isocon-light.fish ~/.config/fish/themes/isocon-light.fish
+
+cat >~/.config/fish/conf.d/fish_frozen_theme.fish <<'EOF'
+# Source the isocon theme matching the current macOS appearance.
+if defaults read -g AppleInterfaceStyle 2>/dev/null | string match -q Dark
+    source ~/.config/fish/themes/isocon-dark.fish
+else
+    source ~/.config/fish/themes/isocon-light.fish
+end
+EOF
 
 cp ./extras/dark/isocon-dark.tmux ~/.config/tmux/isocon-dark.tmux
 cp ./extras/light/isocon-light.tmux ~/.config/tmux/isocon-light.tmux
