@@ -8,3 +8,20 @@ run = "stylua --check -a ."
 [tasks."format"]
 description = "Format all lua files"
 run = "stylua -a ."
+
+[tasks."generate-extras"]
+description = "Generate extra files using current neovim config"
+run = "nvim --headless -c 'luafile generate_extras.lua' -c 'qa!'"
+
+[tasks."copy-extras"]
+run = '''
+#!/usr/bin/env bash
+set -x
+cp ./extras/dark/isocon-dark.ghostty ~/.config/ghostty/themes/isocon-dark
+cp ./extras/light/isocon-light.ghostty ~/.config/ghostty/themes/isocon-light
+
+cp ./extras/dark/isocon-dark.fish ~/.config/fish/conf.d/fish_frozen_theme.fish
+
+cp ./extras/dark/isocon-dark.tmux ~/.config/tmux/isocon-dark.tmux
+cp ./extras/light/isocon-light.tmux ~/.config/tmux/isocon-light.tmux
+'''

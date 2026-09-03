@@ -20,16 +20,16 @@ local M = {}
 --- Default configuration values for dark backgrounds.
 ---@type IsoconConfig
 M.dark = {
-	background = "#282c34",
-	contrast = 5.0,
+	background = "#062329",
+	contrast = 4.5,
 	bright_boost = 1.3,
 	hues = {
-		red = 25,
+		red = 0,
 		green = 150,
-		yellow = 85,
-		blue = 260,
-		magenta = 305,
-		cyan = 200,
+		blue = 240,
+		yellow = 60,
+		magenta = 297,
+		cyan = 180,
 	},
 }
 

@@ -95,7 +95,10 @@ local function gen_tmux(p)
 		string.format('set -g mode-style "bg=%s,fg=%s"', p.fg, p.bg),
 		string.format('set -g pane-border-style "fg=%s"', p.bg_subtle),
 		string.format('set -g pane-active-border-style "fg=%s"', p.blue),
-		string.format('set -g window-status-current-style "fg=%s,bold"', p.blue),
+		string.format(
+			'set -g window-status-current-style "fg=%s,bold"',
+			p.blue
+		),
 		string.format('set -g window-status-style "fg=%s"', p.fg),
 	}
 	return table.concat(lines, "\n") .. "\n"
@@ -116,8 +119,14 @@ local function gen_fish(p)
 		"set -g fish_color_error " .. bare(p.red),
 		"set -g fish_color_param " .. bare(p.fg),
 		"set -g fish_color_comment " .. bare(p.fg_dim),
-		"set -g fish_color_selection --background=" .. bare(p.fg) .. " --color=" .. bare(p.bg),
-		"set -g fish_color_search_match --background=" .. bare(p.fg) .. " --color=" .. bare(p.bg),
+		"set -g fish_color_selection --background="
+			.. bare(p.fg)
+			.. " --color="
+			.. bare(p.bg),
+		"set -g fish_color_search_match --background="
+			.. bare(p.fg)
+			.. " --color="
+			.. bare(p.bg),
 		"set -g fish_color_operator " .. bare(p.cyan),
 		"set -g fish_color_escape " .. bare(p.magenta),
 		"set -g fish_color_autosuggestion " .. bare(p.fg_dim),
