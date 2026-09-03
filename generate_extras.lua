@@ -1,6 +1,15 @@
 --- generate_extras.lua
 --- Generates ghostty, tmux, and fish theme files from isocon palettes.
---- Works with plain `lua` (defaults only) or `nvim --headless -l` (picks up user config).
+---
+--- Two ways to run:
+---   lua generate_extras.lua
+---       No config available: generates BOTH stock variants from defaults.lua.
+---   nvim --headless -c 'luafile generate_extras.lua' -c 'qa!'
+---       Loads your init.lua first, so isocon.config reflects your tweaks;
+---       generates ONLY the currently active variant (light or dark).
+---
+--- Note: `nvim --headless -l` does NOT load init.lua, so it cannot see your
+--- config. Use `-c 'luafile ...'` (above) to pick up your tweaks.
 
 -- Set up package.path so we can require isocon modules without Neovim
 local source = debug.getinfo(1, "S").source:gsub("^@", "")
@@ -14,14 +23,16 @@ package.path = script_dir
 local palette = require("isocon.palette")
 local defaults = require("isocon.defaults")
 
-local function get_config(variant)
+-- Return the live user config if isocon.setup() has run (init.lua loaded),
+-- otherwise nil.
+local function get_live_config()
 	if vim then
 		local ok, isocon = pcall(require, "isocon")
 		if ok and isocon.config then
 			return isocon.config
 		end
 	end
-	return variant == "light" and defaults.light or defaults.dark
+	return nil
 end
 
 -- Strip leading # from hex color
@@ -130,18 +141,13 @@ local function write_file(path, content)
 	f:close()
 end
 
--- Generate for both variants
+-- Generate all three theme files for one config. The variant (dark/light) is
+-- derived from the resolved palette, not guessed from the background hex, so a
+-- tweaked background lands in the correct extras/<variant>/ directory.
 local base = script_dir or "./"
-for _, variant in ipairs({ "dark", "light" }) do
-	local cfg = get_config(variant)
-	if variant == "light" and cfg.background == defaults.dark.background then
-		cfg = defaults.light
-	elseif
-		variant == "dark" and cfg.background == defaults.light.background
-	then
-		cfg = defaults.dark
-	end
+local function generate(cfg)
 	local p = palette.generate(cfg)
+	local variant = p.is_dark and "dark" or "light"
 
 	local dir = base .. "extras/" .. variant .. "/"
 	write_file(dir .. "isocon-" .. variant .. ".ghostty", gen_ghostty(p))
@@ -149,4 +155,14 @@ for _, variant in ipairs({ "dark", "light" }) do
 	write_file(dir .. "isocon-" .. variant .. ".fish", gen_fish(p))
 
 	print("Generated " .. variant .. " extras in " .. dir)
+end
+
+local live = get_live_config()
+if live then
+	-- Loaded via nvim with init.lua: emit only the active, tweaked variant.
+	generate(live)
+else
+	-- Plain `lua` / no config: emit both stock variants from defaults.
+	generate(defaults.dark)
+	generate(defaults.light)
 end
