@@ -8,10 +8,12 @@ A Neovim colorscheme where every syntax color has the same WCAG contrast ratio a
 
 ## Installation
 
-With [lazy.nvim](https://github.com/folke/lazy.nvim):
+With the built-in Neovim package manager (`vim.pack`):
 
 ```lua
-{ dir = '~/path/to/isocon' }
+vim.pack.add({ "https://github.com/erietz/isocon.nvim" })
+
+vim.cmd("colorscheme isocon")
 ```
 
 ## Usage
@@ -69,25 +71,25 @@ Or as a command:
 
 Every foreground color is generated from the background using the same three-step process:
 
-**1. Target luminance** — given a background luminance `Y_bg` and desired contrast ratio `CR`, solve for the foreground luminance:
+**1. Target luminance**: given a background luminance `Y_bg` and desired contrast ratio `CR`, solve for the foreground luminance:
 - Dark background: `Y_fg = CR × (Y_bg + 0.05) − 0.05`
 - Light background: `Y_fg = (Y_bg + 0.05) / CR − 0.05`
 
-**2. Find lightness** — binary-search the Oklab `L` value such that the color at `(L, C, H)` hits `Y_fg` exactly.
+**2. Find lightness**: binary-search the Oklab `L` value such that the color at `(L, C, H)` hits `Y_fg` exactly.
 
-**3. Max chroma** — binary-search for the highest chroma that keeps the color inside the sRGB gamut. Normal colors use 75% of that; bright variants use 100% (or `normal × bright_boost`, whichever is smaller).
+**3. Max chroma**: binary-search for the highest chroma that keeps the color inside the sRGB gamut. Normal colors use 75% of that; bright variants use 100% (or `normal × bright_boost`, whichever is smaller).
 
 The six hues are fixed by default in OKLCH (all overridable via `hues`):
 
 | Color   | Angle | Notes |
 |---------|------:|-------|
-| red     |  25°  | Warm red — lower drifts pink, higher drifts orange |
-| yellow  |  85°  | Pure yellow — lower is orange, higher is yellow-green |
-| green   | 150°  | Mid green — lower is lime, higher is teal |
-| cyan    | 200°  | Teal-cyan — lower merges with green, higher drifts blue |
-| blue    | 260°  | Prototypical blue — lower is violet, higher is indigo |
-| magenta | 305°  | Clear magenta — lower is purple, higher is hot pink |
+| red     |  25°  | Warm red; lower drifts pink, higher drifts orange |
+| yellow  |  85°  | Pure yellow; lower is orange, higher is yellow-green |
+| green   | 150°  | Mid green; lower is lime, higher is teal |
+| cyan    | 200°  | Teal-cyan; lower merges with green, higher drifts blue |
+| blue    | 260°  | Prototypical blue; lower is violet, higher is indigo |
+| magenta | 305°  | Clear magenta; lower is purple, higher is hot pink |
 
-These are **not** evenly spaced, because colors are not evenly distributed around the perceptual wheel. Yellow and green dominate a large arc (~85°–180°, nearly a third of the wheel) while red and magenta occupy a much narrower band (~0°–40° and 300°–360°). OKLCH partially corrects for this compared to HSL, but the unevenness remains — so the hues are placed where each color is most unambiguously recognizable, not at equal intervals.
+These are **not** evenly spaced, because colors are not evenly distributed around the perceptual wheel. Yellow and green dominate a large arc (~85°–180°, nearly a third of the wheel) while red and magenta occupy a much narrower band (~0°–40° and 300°–360°). OKLCH partially corrects for this compared to HSL, but the unevenness remains, so the hues are placed where each color is most unambiguously recognizable, not at equal intervals.
 
 The result: every color you see in your editor has the same contrast against the background, and colors are as saturated as the gamut allows at that lightness.
